@@ -2,21 +2,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login-form');
     const errorMessage = document.getElementById('error-message');
     
-    // Mock user database (simulating JSON response)
-    const validUsers = [
-        {
-            codigo: "123456",
-            password: "1234",
-            nombre: "Juan Pérez",
-            email: "jperez@universidad.edu.co"
-        },
-        {
-            codigo: "654321",
-            password: "1234",
-            nombre: "María López",
-            email: "mlopez@universidad.edu.co"
+    // Updated API URL to get all students
+    const API_URL = 'https://24a0dac0-2579-4138-985c-bec2df4bdfcc-00-3unzo70c406dl.riker.replit.dev/students';
+    
+    let studentsData = [];
+    
+    fetchStudentsData();
+    
+    async function fetchStudentsData() {
+        try {
+            const response = await fetch(API_URL);
+            if (response.ok) {
+                studentsData = await response.json();
+                console.log('Students data loaded successfully');
+            } else {
+                console.error('Failed to load students data');
+            }
+        } catch (error) {
+            console.error('Error loading students data:', error);
         }
-    ];
+    }
     
     loginForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -24,31 +29,54 @@ document.addEventListener('DOMContentLoaded', function() {
         const codigo = document.getElementById('codigo').value;
         const password = document.getElementById('password').value;
         
-        // Simulate API request
-        login(codigo, password);
+        validateLogin(codigo, password);
     });
     
-    function login(codigo, password) {
-        setTimeout(() => {
-            const user = validUsers.find(user => user.codigo === codigo && user.password === password);
+    function validateLogin(codigo, password) {
+        try {
+            const loginButton = document.getElementById('login-button');
+            loginButton.disabled = true;
+            loginButton.innerHTML = 'Verificando...';
             
-            if (user) {
+            console.log('Validating credentials...');
+            
+            // Find matching student
+            const matchedStudent = studentsData.find(student => 
+                student.codigo === codigo && student.clave === password
+            );
+            
+            if (matchedStudent) {
+                console.log('Login successful, redirecting...');
+                // Store user data in localStorage
                 localStorage.setItem('currentUser', JSON.stringify({
-                    codigo: user.codigo,
-                    nombre: user.nombre,
-                    email: user.email
+                    codigo: matchedStudent.codigo,
+                    nombre: matchedStudent.nombre,
+                    email: matchedStudent.email
                 }));
                 
                 window.location.href = 'notas.html';
             } else {
+                console.log('Login failed: Invalid credentials');
+                errorMessage.textContent = 'Credenciales inválidas. Por favor intente nuevamente.';
                 errorMessage.classList.remove('d-none');
-                document.getElementById('codigo').value = '';
                 document.getElementById('password').value = '';
                 
                 setTimeout(() => {
                     errorMessage.classList.add('d-none');
                 }, 3000);
             }
-        }, 1000);
+        } catch (error) {
+            console.error('Error during login validation:', error);
+            errorMessage.textContent = 'Error en la verificación. Intente nuevamente.';
+            errorMessage.classList.remove('d-none');
+            
+            setTimeout(() => {
+                errorMessage.classList.add('d-none');
+            }, 3000);
+        } finally {
+            const loginButton = document.getElementById('login-button');
+            loginButton.disabled = false;
+            loginButton.innerHTML = 'Ingresar';
+        }
     }
 });
