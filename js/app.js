@@ -1,8 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is already logged in - redirect to notas if so
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (currentUser) {
+        window.location.href = 'notas.html';
+        return;
+    }
+
     const loginForm = document.getElementById('login-form');
     const errorMessage = document.getElementById('error-message');
     
-    // Updated API URL to get all students
+    // API URL to get all students
     const API_URL = 'https://24a0dac0-2579-4138-985c-bec2df4bdfcc-00-3unzo70c406dl.riker.replit.dev/students';
     
     let studentsData = [];
