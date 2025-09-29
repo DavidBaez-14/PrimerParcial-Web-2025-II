@@ -9,26 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login-form');
     const errorMessage = document.getElementById('error-message');
     
-    // API URL to get all students
-    const API_URL = 'https://24a0dac0-2579-4138-985c-bec2df4bdfcc-00-3unzo70c406dl.riker.replit.dev/students';
-    
-    let studentsData = [];
-    
-    fetchStudentsData();
-    
-    async function fetchStudentsData() {
-        try {
-            const response = await fetch(API_URL);
-            if (response.ok) {
-                studentsData = await response.json();
-                console.log('Students data loaded successfully');
-            } else {
-                console.error('Failed to load students data');
-            }
-        } catch (error) {
-            console.error('Error loading students data:', error);
-        }
-    }
+    const API_URL = 'https://24a0dac0-2579-4138-985c-bec2df4bdfcc-00-3unzo70c406dl.riker.replit.dev/login';
     
     loginForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -36,35 +17,44 @@ document.addEventListener('DOMContentLoaded', function() {
         const codigo = document.getElementById('codigo').value;
         const password = document.getElementById('password').value;
         
-        validateLogin(codigo, password);
+        handleLogin(codigo, password);
     });
     
-    function validateLogin(codigo, password) {
+    async function handleLogin(codigo, password) {
         try {
             const loginButton = document.getElementById('login-button');
             loginButton.disabled = true;
             loginButton.innerHTML = 'Verificando...';
             
-            console.log('Validating credentials...');
+            console.log('Sending login request...');
             
-            // Find matching student
-            const matchedStudent = studentsData.find(student => 
-                student.codigo === codigo && student.clave === password
-            );
+            // Send credentials to login endpoint
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    codigo: codigo,
+                    clave: password 
+                })
+            });
             
-            if (matchedStudent) {
+            const data = await response.json();
+            console.log('Login response:', data);
+            
+            if (data.login === true) {
                 console.log('Login successful, redirecting...');
-                // Store user data in localStorage
                 localStorage.setItem('currentUser', JSON.stringify({
-                    codigo: matchedStudent.codigo,
-                    nombre: matchedStudent.nombre,
-                    email: matchedStudent.email
+                    codigo: data.codigo,
+                    nombre: data.nombre,
+                    email: data.email
                 }));
                 
                 window.location.href = 'notas.html';
             } else {
-                console.log('Login failed: Invalid credentials');
-                errorMessage.textContent = 'Credenciales inválidas. Por favor intente nuevamente.';
+                console.log('Login failed:', data.mensaje || 'Invalid credentials');
+                errorMessage.textContent = data.mensaje || 'Credenciales inválidas. Por favor intente nuevamente.';
                 errorMessage.classList.remove('d-none');
                 document.getElementById('password').value = '';
                 
@@ -73,8 +63,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 3000);
             }
         } catch (error) {
-            console.error('Error during login validation:', error);
-            errorMessage.textContent = 'Error en la verificación. Intente nuevamente.';
+            console.error('Error during login:', error);
+            errorMessage.textContent = 'Error en la conexión. Intente nuevamente.';
             errorMessage.classList.remove('d-none');
             
             setTimeout(() => {
