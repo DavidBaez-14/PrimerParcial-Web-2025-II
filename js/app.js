@@ -29,30 +29,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function login(codigo, password) {
-        // Simulate API request delay
         setTimeout(() => {
-            // Find user with matching credentials
             const user = validUsers.find(user => user.codigo === codigo && user.password === password);
             
             if (user) {
-                // Store user data in localStorage
                 localStorage.setItem('currentUser', JSON.stringify({
                     codigo: user.codigo,
                     nombre: user.nombre,
                     email: user.email
                 }));
                 
-                // Redirect to notas.html
                 window.location.href = 'notas.html';
             } else {
-                // Show error message
                 errorMessage.classList.remove('d-none');
-                
-                // Clear form fields
                 document.getElementById('codigo').value = '';
                 document.getElementById('password').value = '';
                 
-                // Hide error message after 3 seconds
                 setTimeout(() => {
                     errorMessage.classList.add('d-none');
                 }, 3000);

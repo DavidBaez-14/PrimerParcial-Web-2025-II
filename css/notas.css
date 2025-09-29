@@ -1,0 +1,34 @@
+body {
+    background-color: white;
+}
+
+.btn-custom {
+    background-color: #D31024;
+    color: white;
+    font-size: 16px;
+    height: 32px;
+    width: 215px;
+    border-bottom-left-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-custom:hover {
+    background-color: #b10e1f;
+    color: white;
+}
+
+.table-header {
+    background-color: #f0f0f0;
+    color: black;
+    font-weight: bold;
+}
+
+th {
+    font-weight: bold !important;
+}
+
+.student-info {
+    font-size: 16px;
+}
